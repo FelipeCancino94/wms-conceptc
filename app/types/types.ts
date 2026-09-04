@@ -433,3 +433,7 @@ export type WarehouseReportRow = {
 export type warehouseReportByNeonProps = Omit<WarehouseReportRow, "created_at"> & {
   created_at: string; // ISO 8601 con Z
 };
+
+/* ------------------------------------------------------- */
+/* APP V6 NEW TYPES -------------------------------------- */
+/* ------------------------------------------------------- */

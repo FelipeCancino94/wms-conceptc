@@ -25,7 +25,7 @@ export default function AppHeader() {
           <li className="px-4 py-2">
             <Link href="/" className="px-4 py-2">Gestion d&apos;entrepôt</Link>
           </li>
-          <li className="px-4 py-2">
+          <li className="px-4 py-2 hidden!">
             <Link href="/replenishment-lists" className="px-4 py-2">Listes de réapprovisionnement</Link>
           </li>
           <li className="hidden px-4 py-2">

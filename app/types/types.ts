@@ -492,6 +492,12 @@ export type ProductReport = {
   }[];
 }
 
+export type ProductReportPage = {
+  data: ProductReport[];
+  nextOffset: number | null;
+  waitTimeInSeconds: number;
+}
+
 /* ------------------------------------------------------- */
 /* APP V6 NEW TYPES -------------------------------------- */
 /* ------------------------------------------------------- */

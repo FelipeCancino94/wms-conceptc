@@ -1,4 +1,5 @@
 import { toast } from "sonner";
+import type { ProductReport, ProductReportPage } from "@/app/types/types";
 
 export async function getWarehousesFromSkusavvy() {
   try {
@@ -91,24 +92,39 @@ export async function getWeightedAvgCosts(warehouseId: string | null) {
 
 export async function getProductList() {
   try {
-    const response = await fetch('/api/skusavvy/products-inform', {
-      method: "POST",
-      headers: {
-        'Content-Type': 'application/json'
-      },
-    })
+    const products: ProductReport[] = [];
+    let offset: number | null = 0;
 
-    if (!response.ok) {
-      toast.error(`N'est pas possible d'ontenir l'information en ce moment, essayez plus tard.`, {
-        position: 'top-center',
-        richColors: true
+    // The route returns the catalog in chunks; keep calling until there is no next offset,
+    // waiting when SkuSavvy's rate limit asks us to
+    while (offset !== null) {
+      const response = await fetch('/api/skusavvy/products-inform', {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ offset }),
       })
-      return;
+
+      if (!response.ok) {
+        toast.error(`N'est pas possible d'ontenir l'information en ce moment, essayez plus tard.`, {
+          position: 'top-center',
+          richColors: true
+        })
+        return;
+      }
+
+      const result: ProductReportPage = await response.json()
+
+      products.push(...result.data);
+      offset = result.nextOffset;
+
+      if (offset !== null && result.waitTimeInSeconds > 0) {
+        await new Promise((r) => setTimeout(r, (result.waitTimeInSeconds + 1) * 1000));
+      }
     }
 
-    const result = await response.json()
-
-    return result;
+    return { data: products };
   } catch (error) {
     toast.error(`N'est pas possible d'ontenir l'information en ce moment, essayez plus tard. Error: ${error}`, {
       position: 'top-center',

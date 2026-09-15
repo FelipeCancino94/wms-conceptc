@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { generateWarehouseInform } from "../lib/generateWarehouseInform";
-// import { generateProductListInform } from "../lib/generateProductListInform";
+//import { generateProductListInform } from "../lib/generateProductListInform";
 import { formatPrice } from "../lib/functions/formatPrice";
 import HistoryReports from "../components/HistoricReports/HistoryReports";
 

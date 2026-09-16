@@ -31,35 +31,32 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid offset" }, { status: 400 });
   }
 
+  /* 
+  query ProductList($limit: Int, $offset: Int) {
+  variants(limit: $limit, offset: $offset) {
+  */
+
   const QUERY = `
-    query ProductList($limit: Int, $offset: Int) {
-      variants(limit: $limit, offset: $offset) {
+    query ProductList($offset: Int) {
+      variants(limit: 10, offset: $offset) {
         id
+        sku
+        price
+        totalQuantity
         product {
           name
           status
-          type
-        }
-        inventory {
-          vendors {
-            vendor {
-              name
-            }
-          }
         }
         inventoryItem {
-          totalQuantity
-          id
-          barcodes {
+          barcodes(limit: 1) {
             value
           }
           weightedAvgCost
         }
-        sku
-        price
-        quantities {
-          warehouseId
+        inventory {
+          committedQuantity
           quantity
+          warehouseId
         }
       }
     }
@@ -120,20 +117,19 @@ export async function POST(req: Request) {
         const product = {
           id: item.id,
           name: item.product.name,
-          vendor: item.inventory[0]?.vendors[0]?.vendor.name || '',
-          type: item.product.type,
           status: item.product.status,
-          totalQuantity: item.inventoryItem.totalQuantity,
-          variantInventoryId: item.inventoryItem.id,
+          totalQuantity: item.totalQuantity,
+          variantInventoryQuantity: item.totalQuantity,
           variantId: item.id,
           sku: item.sku,
-          barcode: item.inventoryItem.barcodes[0]?.value || '',
+          barcode: item.inventoryItem.barcodes[0]?.value || 'not founded',
           price: item.price,
-          avgCost: item.inventoryItem.weightedAvgCost,
-          warehouses: item.quantities.map((warehouse) => ({
-            name: warehouse.warehouseId,
+          variantCost: item.inventoryItem.weightedAvgCost,
+          warehouses: item.inventory.map((warehouse) => ({
+            name: warehouse.warehouseId, // cambiar por el nombre del warehouse, crear funcion para obtenerlo aparte
             id: warehouse.warehouseId,
             quantity: warehouse.quantity,
+            committedQuantity: warehouse.committedQuantity
           })),
         }
 

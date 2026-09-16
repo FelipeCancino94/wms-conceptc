@@ -436,59 +436,47 @@ export type warehouseReportByNeonProps = Omit<WarehouseReportRow, "created_at"> 
 
 export type ProductReportRow = {
   id: string;
+  sku:string;
+  price: string;
   product: {
     name: string;
     status: string;
-    type: string;
     __typename: string;
-  }
-  sku: string;
-  price: string;
+  };
   __typename: string;
-  quantities: {
-    warehouseId: string;
-    quantity: number;
-    __typename: string;
-  }[];
+  totalQuantity: number;
   inventoryItem: {
-    id: string;
     __typename: string;
     barcodes: {
       value: string;
       __typename: string;
     }[];
     weightedAvgCost: string;
-    totalQuantity: number;
   };
   inventory: {
+    quantity: string;
+    warehouseId: string;
     __typename: string;
-    vendors: {
-      vendor: {
-        name: string;
-        __typename: string;
-      }
-      __typename: string;
-    }[]
-  }[];
+    committedQuantity: number;
+  }[]
 }
 
 export type ProductReport = {
   id: string;
   name: string;
-  vendor: string;
-  type: string;
   status: string;
   totalQuantity: number;
-  variantInventoryId: string;
   variantId: string;
   sku: string;
   barcode: string;
   price: string;
-  avgCost: string;
+  variantInventoryQuantity: number;
+  variantCost: string;
   warehouses: {
     name: string;
     id: string;
-    quantity: number;
+    quantity: string;
+    committedQuantity: number;
   }[];
 }
 

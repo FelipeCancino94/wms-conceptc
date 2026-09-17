@@ -4,7 +4,7 @@ import { formatPrice } from "./functions/formatPrice";
 import { downloadFullReportCsv } from "./data/exportReportsToCsv";
 import { PostSkusavvyReports } from "./data/postSkusavvyReports";
 
-export async function generateWarehouseInform() {
+export async function generateWarehouseInform(reportId: string) {
   const report:SkusavvyFullReportProps = {
     warehouses: [],
   }
@@ -45,5 +45,5 @@ export async function generateWarehouseInform() {
   }
 
   downloadFullReportCsv(report);
-  await PostSkusavvyReports(report);
+  await PostSkusavvyReports(report, reportId);
 }

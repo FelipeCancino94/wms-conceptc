@@ -1,13 +1,13 @@
 import { toast } from "sonner";
-import type { SkusavvyFullReportProps } from "../../types/types";
+import type { ProductReport } from "../../types/types";
 
-export const PostSkusavvyReports = async (report: SkusavvyFullReportProps, reportId: string) => {
+export const PostSkusavvyProductReport = async (report: ProductReport[], reportId: string) => {
   const params = {
     reportId: reportId,
     report
   }
   try {
-    const response = await fetch("/api/warehouse/reports", {
+    const response = await fetch("/api/skusavvy-reports/products", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -24,7 +24,7 @@ export const PostSkusavvyReports = async (report: SkusavvyFullReportProps, repor
     }
 
     const result = await response.json();
-    toast.success(`Rapport de Skusavvy envoyé avec succès, warehouses obtenus: ${result.count}`, {
+    toast.success(`Rapport de Skusavvy envoyé avec succès, produits obtenus: ${result.count}`, {
       position: 'top-center',
       richColors: true
     });

@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { generateWarehouseInform } from "../lib/generateWarehouseInform";
 import { generateProductListInform } from "../lib/generateProductListInform";
+import { generateReport } from "../lib/generateReport";
 import { formatPrice } from "../lib/functions/formatPrice";
 import HistoryReports from "../components/HistoricReports/HistoryReports";
 
@@ -64,8 +65,10 @@ export default function SkusavvyPage() {
     setLoadingAllReport(true);
     setHideHistoryReports(true);
 
-    await generateWarehouseInform();
-    await generateProductListInform();
+    const inform = await generateReport();
+    const reportId = inform[0].id; // ID to send to anothers endpoints
+    await generateWarehouseInform(reportId);
+    await generateProductListInform(reportId);
 
     setLoadingAllReport(false);
     setHideHistoryReports(false);

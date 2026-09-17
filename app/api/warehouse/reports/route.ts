@@ -12,11 +12,13 @@ interface warehouseReportRow {
 
 const sql = neon(process.env.DATABASE_URL || "");
 const CHUNK_SIZE = 25;
+let reportId = 0;
 
 async function upsertWarehouse(warehouse: warehouseReportRow) {
   try {
     await sql`
-      INSERT INTO warehouse_reports (
+      INSERT INTO reports_warehouses (
+        report_id,
         warehouse_id,
         warehouse_name,
         total_products,
@@ -25,13 +27,14 @@ async function upsertWarehouse(warehouse: warehouseReportRow) {
         total_committed
       )
       VALUES (
+        ${reportId},
         ${warehouse.id},
         ${warehouse.name},
         ${warehouse.totalProducts},
         ${warehouse.totalPrice},
         ${warehouse.totalCosts},
         ${warehouse.totalCommitted}
-      ) returning id
+      ) returning report_id
     `;
     return { success: true, warehouse };
   } catch (error) {
@@ -41,7 +44,9 @@ async function upsertWarehouse(warehouse: warehouseReportRow) {
 
 export async function POST(req: Request) {
   try {
-    const warehouses: warehouseReportRow[] = await req.json();
+    const request = await req.json();
+    reportId = Number(request.reportId);
+    const warehouses: warehouseReportRow[] = request.report.warehouses;
     const failed: { warehouse: warehouseReportRow; error: string }[] = [];
 
     for (let i = 0; i < warehouses.length; i += CHUNK_SIZE) {

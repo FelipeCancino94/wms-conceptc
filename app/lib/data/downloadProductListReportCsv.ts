@@ -49,7 +49,7 @@ const escapeCell = (raw: unknown, delimiter: string): string => {
 const buildWarehouseColumns = (warehouses: WarehouseProps[]): Array<Column<ProductReport>> =>
   warehouses.flatMap((warehouse) => [
     {
-      header: `${warehouse.name} - quantity`,
+      header: `${warehouse.name} - on hand`,
       value: (product: ProductReport) =>
         product.warehouses.find((w) => w.id === warehouse.id)?.quantity ?? EMPTY_QUANTITY,
     },
@@ -58,6 +58,16 @@ const buildWarehouseColumns = (warehouses: WarehouseProps[]): Array<Column<Produ
       value: (product: ProductReport) =>
         product.warehouses.find((w) => w.id === warehouse.id)?.committedQuantity ?? EMPTY_QUANTITY,
     },
+    {
+      header: `${warehouse.name} - available`,
+      value: (product: ProductReport) => {
+        const productFinded = product.warehouses.find((w) => w.id === warehouse.id);
+        if (!productFinded) {
+          return EMPTY_QUANTITY;
+        }
+        return (Number(productFinded.quantity) - Number(productFinded.committedQuantity)).toString();
+      }
+    }
   ]);
 
 // Fallback when the warehouse list is unavailable: keep the ids found in the products themselves

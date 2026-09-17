@@ -31,14 +31,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid offset" }, { status: 400 });
   }
 
-  /* 
-  query ProductList($limit: Int, $offset: Int) {
-  variants(limit: $limit, offset: $offset) {
-  */
-
   const QUERY = `
-    query ProductList($offset: Int) {
-      variants(limit: 10, offset: $offset) {
+    query ProductList($limit: Int, $offset: Int) {
+      variants(limit: $limit, offset: $offset) {
         id
         sku
         price

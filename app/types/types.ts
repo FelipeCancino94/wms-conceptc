@@ -486,6 +486,12 @@ export type ProductReportPage = {
   waitTimeInSeconds: number;
 }
 
+export type ReportProps = {
+  id: string;
+  created_at: Date;
+  status: string;
+}
+
 /* ------------------------------------------------------- */
 /* APP V6 NEW TYPES -------------------------------------- */
 /* ------------------------------------------------------- */

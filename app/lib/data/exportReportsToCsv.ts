@@ -60,7 +60,7 @@ export const fullReportToCsv = (
 
 export const downloadFullReportCsv = (
   report: SkusavvyFullReportProps,
-  filename = `felipapp-skusavvy-report-${new Date().toISOString().slice(0, 10)}.csv`,
+  filename = `felipapp-skusavvy-warehouses-report-${new Date().toISOString().slice(0, 10)}.csv`,
   options?: CsvOptions
 ) => {
   const csv = fullReportToCsv(report, options);

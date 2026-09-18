@@ -22,9 +22,8 @@ interface ProductReportRow {
 
 const sql = neon(process.env.DATABASE_URL || "");
 const CHUNK_SIZE = 25;
-let reportId = 0;
 
-async function upsertProduct(product: ProductReportRow) {
+async function upsertProduct(product: ProductReportRow, reportId: number) {
   try {
     await sql`
       INSERT INTO reports_products (
@@ -51,7 +50,7 @@ async function upsertProduct(product: ProductReportRow) {
         ${product.price},
         ${product.variantInventoryQuantity},
         ${product.variantCost},
-        ${product.warehouses}
+        ${JSON.stringify(product.warehouses ?? [])}::jsonb
       ) returning report_id
     `;
     return { success: true, product };
@@ -63,13 +62,17 @@ async function upsertProduct(product: ProductReportRow) {
 export async function POST(req: Request) {
   try {
     const request = await req.json();
-    reportId = Number(request.reportId);
+    const reportId = Number(request.reportId);
     const products: ProductReportRow[] = request.report;
+
+    if (!Number.isInteger(reportId)) {
+      return NextResponse.json({ error: "Invalid reportId" }, { status: 400 });
+    }
     const failed: { product: ProductReportRow; error: string }[] = [];
 
     for (let i = 0; i < products.length; i += CHUNK_SIZE) {
       const chunk = products.slice(i, i + CHUNK_SIZE);
-      const results = await Promise.all(chunk.map(upsertProduct));
+      const results = await Promise.all(chunk.map((product) => upsertProduct(product, reportId)));
 
       for (const r of results) {
         if (!r.success) {

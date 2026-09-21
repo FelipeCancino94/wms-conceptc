@@ -1,21 +1,37 @@
 import { neon } from "@neondatabase/serverless";
 import { NextResponse } from "next/server";
-import type { WarehouseReportRow } from "@/app/types/types";
+import type { ReportListRow, ReportWarehouseEntry } from "@/app/types/types";
 
 const sql = neon(process.env.DATABASE_URL || "");
 
-interface ReportWarehouseToCsvProps {
-  warehouses: {
-    id: string;
-    name: string;
-    totalProducts: string;
-    totalPrice: string;
-    totalCosts: string;
-    totalCommitted: string;
-  }[]
+interface ReportProductListToCsvProps {
+  id: string;
+  variantId: string;
+  sku: string;
+  barcode: string;
+  name: string;
+  status: string;
+  price: string;
+  variantCost: string;
+  totalQuantity: number;
+  variantInventoryQuantity: number;
+  warehouses: ReportWarehouseEntry[];
 }
 
-const reportWarehouses: ReportWarehouseToCsvProps = { warehouses: [] };
+function parseWarehouses(
+  value: ReportListRow["warehouses"]
+): ReportWarehouseEntry[] {
+  if (Array.isArray(value)) return value;
+  if (typeof value !== "string" || value.trim() === "") return [];
+
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    console.error("Error parsing warehouses column: ", error);
+    return [];
+  }
+}
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -31,26 +47,33 @@ export async function GET(request: Request) {
 
   try {
     const response = (await sql`
-      SELECT warehouse_id, warehouse_name, total_products, total_price, total_costs, total_committed
-      FROM reports_warehouses
+      SELECT name, status, total_quantity, variant_id, sku, barcode, price, variant_inventory_quantity, variant_cost, warehouses, id
+      FROM reports_products
       WHERE report_id = ${reportId}
-      ORDER BY warehouse_name
-    `) as Omit<WarehouseReportRow, "id" | "created_at">[];
+      ORDER BY id
+    `) as Omit<ReportListRow, "report_id" | "created_at">[];
+
+    const reportProductList: ReportProductListToCsvProps[] = [];
 
     response.forEach((row) => {
-      const warehouse = {
-        id: row.warehouse_id,
-        name: row.warehouse_name,
-        totalProducts: row.total_products,
-        totalPrice: row.total_price,
-        totalCosts: row.total_costs,
-        totalCommitted: row.total_committed
+      const item: ReportProductListToCsvProps = {
+        id: row.variant_id,
+        variantId: row.variant_id,
+        sku: row.sku,
+        barcode: row.barcode,
+        name: row.name,
+        status: row.status,
+        price: row.price,
+        variantCost: row.variant_cost,
+        totalQuantity: row.total_quantity,
+        variantInventoryQuantity: row.variant_inventory_quantity,
+        warehouses: parseWarehouses(row.warehouses),
       }
 
-      reportWarehouses.warehouses.push(warehouse);
+      reportProductList.push(item);
     });
 
-    return NextResponse.json({ data: reportWarehouses }, { status: 200 });
+    return NextResponse.json({ data: reportProductList }, { status: 200 });
 
   } catch (error) {
     console.error("Error getting warehouses report: ", error);

@@ -15,8 +15,6 @@ interface ReportWarehouseToCsvProps {
   }[]
 }
 
-const reportWarehouses: ReportWarehouseToCsvProps = { warehouses: [] };
-
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const rawReportId = searchParams.get("reportId");
@@ -36,6 +34,8 @@ export async function GET(request: Request) {
       WHERE report_id = ${reportId}
       ORDER BY warehouse_name
     `) as Omit<WarehouseReportRow, "id" | "created_at">[];
+
+    const reportWarehouses: ReportWarehouseToCsvProps = { warehouses: [] };
 
     response.forEach((row) => {
       const warehouse = {

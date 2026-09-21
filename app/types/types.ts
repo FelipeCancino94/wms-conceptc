@@ -492,6 +492,29 @@ export type ReportProps = {
   status: string;
 }
 
+export type ReportWarehouseEntry = {
+  id: string;
+  name: string;
+  quantity: string;
+  committedQuantity: number;
+}
+
+export type ReportListRow = {
+  report_id: string;
+  name: string;
+  status: string;
+  total_quantity: number;
+  variant_id: string;
+  sku: string;
+  barcode: string;
+  price: string;
+  variant_inventory_quantity: number;
+  variant_cost: string;
+  /* jsonb: el driver ya lo entrega parseado, pero puede llegar como texto */
+  warehouses: ReportWarehouseEntry[] | string | null;
+  id: string;
+}
+
 /* ------------------------------------------------------- */
 /* APP V6 NEW TYPES -------------------------------------- */
 /* ------------------------------------------------------- */

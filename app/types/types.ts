@@ -510,7 +510,6 @@ export type ReportListRow = {
   price: string;
   variant_inventory_quantity: number;
   variant_cost: string;
-  /* jsonb: el driver ya lo entrega parseado, pero puede llegar como texto */
   warehouses: ReportWarehouseEntry[] | string | null;
   id: string;
 }

@@ -53,8 +53,8 @@ export default function HistoryReports() {
     }
   }
 
-  async function getWarehouseAndProductListData(reportId:string) {
-    generateReportsFromHistoric(reportId);
+  async function getWarehouseAndProductListData(reportId:string, reportDate:string) {
+    generateReportsFromHistoric(reportId, reportDate);
   }
 
   return (
@@ -74,7 +74,7 @@ export default function HistoryReports() {
                     <div className="text-xl">Rapport du { dateUtcToLocalDate(report.created_at) }</div>
                     <button
                       className="h-[43px]!"
-                      onClick={() => getWarehouseAndProductListData(report.id)}>
+                      onClick={() => getWarehouseAndProductListData(report.id, dateUtcToLocalDate(report.created_at))}>
                         Exporter reports en .CSV
                     </button>
                   </div>

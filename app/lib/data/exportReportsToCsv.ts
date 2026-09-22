@@ -58,11 +58,21 @@ export const fullReportToCsv = (
   return bom ? `\uFEFF${csv}` : csv;
 };
 
+export const toFilenameDate = (reportDate?: string): string => {
+  const safe = (reportDate ?? "")
+    .trim()
+    .replace(/[^0-9A-Za-z-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  return safe || new Date().toLocaleDateString("en-CA");
+};
+
 export const downloadFullReportCsv = (
   report: SkusavvyFullReportProps,
-  filename = `felipapp-skusavvy-warehouses-report-${new Date().toISOString().slice(0, 10)}.csv`,
+  reportDate?: string,
   options?: CsvOptions
 ) => {
+  const filename = `felipapp-skusavvy-warehouses-report-${toFilenameDate(reportDate)}.csv`;
   const csv = fullReportToCsv(report, options);
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);

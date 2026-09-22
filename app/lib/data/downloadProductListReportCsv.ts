@@ -1,5 +1,6 @@
 import type { ProductReport, WarehouseProps } from "../../types/types";
 import { getWarehousesFromSkusavvy } from "./skusavvyFunctions";
+import { toFilenameDate } from "./exportReportsToCsv";
 
 type Column<T> = {
   header: string;
@@ -107,6 +108,7 @@ export const productListToCsv = (
 
 export const downloadProductListReportCsv = async (
   products: ProductReport[] | undefined,
+  reportDate?: string,
   options?: CsvOptions
 ) => {
   if (!products?.length) return;
@@ -115,7 +117,7 @@ export const downloadProductListReportCsv = async (
   const warehouses = warehouseList?.length ? warehouseList : warehousesFromProducts(products);
 
   const csv = productListToCsv(products, warehouses, options);
-  const filename = `felipapp-skusavvy-products-report-${new Date().toLocaleDateString("en-CA")}.csv`;
+  const filename = `felipapp-skusavvy-products-report-${toFilenameDate(reportDate)}.csv`;
 
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);

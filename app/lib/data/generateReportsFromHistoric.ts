@@ -1,7 +1,7 @@
 import { downloadFullReportCsv } from "./exportReportsToCsv";
 import { downloadProductListReportCsv } from "./downloadProductListReportCsv";
 
-export async function generateReportsFromHistoric(reportId:string) {
+export async function generateReportsFromHistoric(reportId:string, reportDate:string) {
 
   // GET WAREHOUSES DATA
   const warehousesRes = await fetch(`/api/neon/reports/warehouses?reportId=${reportId}`);
@@ -12,7 +12,7 @@ export async function generateReportsFromHistoric(reportId:string) {
   
   const result = await warehousesRes.json();
   
-  downloadFullReportCsv(result.data);
+  downloadFullReportCsv(result.data, reportDate);
 
   // GET PRODUCT LIST DATA
   
@@ -24,7 +24,7 @@ export async function generateReportsFromHistoric(reportId:string) {
 
   const productResult = await productListRes.json();
 
-  downloadProductListReportCsv(productResult.data)
+  downloadProductListReportCsv(productResult.data, reportDate);
 
   return result;
 }

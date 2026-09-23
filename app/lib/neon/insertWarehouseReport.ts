@@ -34,7 +34,7 @@ async function upsertWarehouse(warehouse: warehouseReportRow) {
         total_committed
       )
       VALUES (
-        ${warehouse.reportId},
+        ${Number(warehouse.reportId)},
         ${warehouse.id},
         ${warehouse.name},
         ${warehouse.totalProducts},
@@ -52,6 +52,7 @@ async function upsertWarehouse(warehouse: warehouseReportRow) {
 
 export async function insertWarehouseReport(report: { warehouses: warehouseReportRow[] }) {
   const warehouses: warehouseReportRow[] = report.warehouses;
+  console.log('warehoses: ', warehouses);
   const failed: { warehouse: warehouseReportRow; error: string }[] = [];
 
   for (let i = 0; i < warehouses.length; i += CHUNK_SIZE) {

@@ -480,11 +480,21 @@ export type ProductReport = {
   }[];
 }
 
-export type ProductReportPage = {
-  data: ProductReport[];
+/* Igual que ProductReport, pero ya asociado a un reporte: es lo que se inserta en DB */
+export type ProductReportToInsert = ProductReport & {
+  reportId: string;
+}
+
+export type ProductReportPage<T = ProductReport> = {
+  data: T[];
   nextOffset: number | null;
   waitTimeInSeconds: number;
 }
+
+/* Todas las formas que puede devolver fetchProductList */
+export type FetchProductListResult =
+  | ({ success: true; status: 200 } & ProductReportPage<ProductReportToInsert>)
+  | { success: false; status: number; data?: unknown };
 
 export type ReportProps = {
   id: string;

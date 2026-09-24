@@ -1,4 +1,8 @@
-import type { ProductReportRow, ProductReport } from "@/app/types/types";
+import type {
+  ProductReportRow,
+  ProductReportToInsert,
+  FetchProductListResult,
+} from "@/app/types/types";
 
 const baseUrl = process.env.SKUSAVVY_BASE_URL || "";
 const apiKey = process.env.SKUSAVVY_API_KEY || "";
@@ -21,7 +25,10 @@ type GraphQLError = {
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-export async function fetchProductList(offset: number, reportId:string) {
+export async function fetchProductList(
+  offset: number,
+  reportId: string
+): Promise<FetchProductListResult> {
   const startOffset = Number(offset ?? 0);
 
   if (!Number.isInteger(startOffset) || startOffset < 0) {
@@ -55,11 +62,14 @@ export async function fetchProductList(offset: number, reportId:string) {
   `;
 
   try {
-    const productReportList: ProductReport[] = [];
+    const productReportList: ProductReportToInsert[] = [];
     const startedAt = Date.now();
     let offset = startOffset;
 
-    const respond = (nextOffset: number | null, waitTimeInSeconds = 0) =>
+    const respond = (
+      nextOffset: number | null,
+      waitTimeInSeconds = 0
+    ): FetchProductListResult =>
       ({ success: true, data: productReportList, nextOffset, waitTimeInSeconds, status: 200 });
 
     for (let page = 0; page < 1000; page++) {

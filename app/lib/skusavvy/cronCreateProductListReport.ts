@@ -1,42 +1,22 @@
+import type { ProductReportToInsert } from "@/app/types/types";
 import { fetchProductList } from "./fetchProductList";
 import { insertProductListReport } from "../neon/insertProductListReport";
-
-interface ProductReportPage {
-  data: ProductReport[];
-  nextOffset: number | null;
-  waitTimeInSeconds: number;
-}
-
-interface ProductReport {
-  reportId: string;
-  id: string;
-  name: string;
-  status: string;
-  totalQuantity: number;
-  variantId: string;
-  sku: string;
-  barcode: string;
-  price: string;
-  variantInventoryQuantity: number;
-  variantCost: string;
-  warehouses: {
-    name: string;
-    id: string;
-    quantity: string;
-    committedQuantity: number;
-  }[];
-}
 
 export async function cronCreateProductListReport(reportId: string) {
 
   try {
-    const products: ProductReport[] = [];
+    const products: ProductReportToInsert[] = [];
     let offset: number | null = 0;
 
     while (offset !== null) {
-      const response = await fetchProductList(offset, reportId);
+      const result = await fetchProductList(offset, reportId);
 
-      const result: ProductReportPage = await response.data;
+      if (!result.success) {
+        throw new Error(
+          `fetchProductList failed (status ${result.status}): ` +
+            JSON.stringify(result.data ?? null)
+        );
+      }
 
       products.push(...result.data);
       offset = result.nextOffset;

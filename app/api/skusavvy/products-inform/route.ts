@@ -10,6 +10,8 @@ export const maxDuration = 60;
 const PAGE_SIZE = 100;
 // Stop fetching before maxDuration so the response always gets back to the client
 const TIME_BUDGET_MS = 45_000;
+// Keep each response well under the 4.5 MB serverless body limit ("Content too large")
+const MAX_RESPONSE_BYTES = 3_000_000;
 
 type GraphQLError = {
   message: string;
@@ -66,6 +68,7 @@ export async function POST(req: Request) {
     const productReportList: ProductReport[] = [];
     const startedAt = Date.now();
     let offset = startOffset;
+    let responseBytes = 0;
 
     const respond = (nextOffset: number | null, waitTimeInSeconds = 0) =>
       NextResponse.json<ProductReportPage>(
@@ -74,7 +77,7 @@ export async function POST(req: Request) {
       );
 
     for (let page = 0; page < 1000; page++) {
-      if (Date.now() - startedAt > TIME_BUDGET_MS) {
+      if (Date.now() - startedAt > TIME_BUDGET_MS || responseBytes > MAX_RESPONSE_BYTES) {
         return respond(offset);
       }
 
@@ -100,7 +103,7 @@ export async function POST(req: Request) {
 
         // Rate limited: hand back what we have so the client waits and resumes from this offset
         if (rateLimit) {
-          return respond(offset, rateLimit.extensions?.cost?.waitTimeInSeconds ?? 60);
+          return respond(offset, Math.max(1, rateLimit.extensions?.cost?.waitTimeInSeconds ?? 60));
         }
 
         return NextResponse.json({ error: json.errors }, { status: 400 });
@@ -129,6 +132,7 @@ export async function POST(req: Request) {
         }
 
         productReportList.push(product);
+        responseBytes += Buffer.byteLength(JSON.stringify(product));
       }
 
       if (batch.length < PAGE_SIZE) break;

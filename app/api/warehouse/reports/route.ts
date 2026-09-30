@@ -12,9 +12,8 @@ interface warehouseReportRow {
 
 const sql = neon(process.env.DATABASE_URL || "");
 const CHUNK_SIZE = 25;
-let reportId = 0;
 
-async function upsertWarehouse(warehouse: warehouseReportRow) {
+async function upsertWarehouse(warehouse: warehouseReportRow, reportId: number) {
   try {
     await sql`
       INSERT INTO reports_warehouses (
@@ -45,13 +44,22 @@ async function upsertWarehouse(warehouse: warehouseReportRow) {
 export async function POST(req: Request) {
   try {
     const request = await req.json();
-    reportId = Number(request.reportId);
-    const warehouses: warehouseReportRow[] = request.report.warehouses;
+    const reportId = Number(request.reportId);
+    const warehouses: warehouseReportRow[] = request.report?.warehouses;
+
+    if (!Number.isInteger(reportId)) {
+      return NextResponse.json({ error: "Invalid reportId" }, { status: 400 });
+    }
+
+    if (!Array.isArray(warehouses)) {
+      return NextResponse.json({ error: "Invalid report" }, { status: 400 });
+    }
+
     const failed: { warehouse: warehouseReportRow; error: string }[] = [];
 
     for (let i = 0; i < warehouses.length; i += CHUNK_SIZE) {
       const chunk = warehouses.slice(i, i + CHUNK_SIZE);
-      const results = await Promise.all(chunk.map(upsertWarehouse));
+      const results = await Promise.all(chunk.map((warehouse) => upsertWarehouse(warehouse, reportId)));
 
       for (const r of results) {
         if (!r.success) {

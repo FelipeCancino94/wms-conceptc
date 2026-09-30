@@ -20,6 +20,8 @@ interface ProductReportRow {
   }[];
 }
 
+export const maxDuration = 60;
+
 const sql = neon(process.env.DATABASE_URL || "");
 const CHUNK_SIZE = 25;
 
@@ -67,6 +69,10 @@ export async function POST(req: Request) {
 
     if (!Number.isInteger(reportId)) {
       return NextResponse.json({ error: "Invalid reportId" }, { status: 400 });
+    }
+
+    if (!Array.isArray(products)) {
+      return NextResponse.json({ error: "Invalid report" }, { status: 400 });
     }
     const failed: { product: ProductReportRow; error: string }[] = [];
 

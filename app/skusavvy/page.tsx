@@ -50,12 +50,12 @@ export default function SkusavvyPage() {
     setContentVisible(true);
 
     const infoWarehouse = await getInfoWarehouse(selectedWarehouse);
-    setTotalQuantity(infoWarehouse.totalQuantity);
-    setTotalPrice(infoWarehouse.totalPrice);
-    setTotalCommitted(infoWarehouse.totalCommitted);
-    
+    setTotalQuantity(infoWarehouse?.totalQuantity ?? 0);
+    setTotalPrice(infoWarehouse?.totalPrice ?? 0);
+    setTotalCommitted(infoWarehouse?.totalCommitted ?? 0);
+
     const infoWeightedAvgCosts = await getWeightedAvgCosts(selectedWarehouse);
-    setTotalWeightedAvgCosts(infoWeightedAvgCosts.totalWeightedAvgCosts);
+    setTotalWeightedAvgCosts(infoWeightedAvgCosts?.totalWeightedAvgCosts ?? 0);
 
     setContentVisible(true);
     setLoading(false);
@@ -65,13 +65,17 @@ export default function SkusavvyPage() {
     setLoadingAllReport(true);
     setHideHistoryReports(true);
 
-    const inform = await generateReport();
-    const reportId = inform[0].id; // ID to send to anothers endpoints
-    await generateWarehouseInform(reportId);
-    await generateProductListInform(reportId);
+    try {
+      const inform = await generateReport();
+      const reportId = inform?.[0]?.id; // ID to send to anothers endpoints
+      if (!reportId) return;
 
-    setLoadingAllReport(false);
-    setHideHistoryReports(false);
+      await generateWarehouseInform(reportId);
+      await generateProductListInform(reportId);
+    } finally {
+      setLoadingAllReport(false);
+      setHideHistoryReports(false);
+    }
   }
 
   useEffect(() => {
